@@ -1,5 +1,11 @@
 package html_ir;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
 public class Node {
 	
 	private String tag;
@@ -7,7 +13,15 @@ public class Node {
 	private Node firstChild;
 	private Node lastChild;
 	private Node nextSibling;
-
+	private Node previousSibling;
+	
+	public List<Node> getChildren() {
+		ArrayList<Node> children = new ArrayList<>();
+		for (Node child = firstChild; child != null; child = child.nextSibling)
+			children.add(child);
+		return children;
+	}
+	
 	public Node(String tag, String text) {
 		this.tag = tag;
 		this.text = text;
@@ -16,6 +30,7 @@ public class Node {
 	public void addChild(Node child) {
 		if (firstChild != null) {
 			lastChild.nextSibling = child;
+			child.previousSibling = lastChild;
 			lastChild = child;
 		} else {
 			firstChild = child;
@@ -24,18 +39,16 @@ public class Node {
 	}
 	
 	public void removeChild(Node child) {
-		if (firstChild == child) {
-			firstChild = firstChild.nextSibling;
-			if (firstChild == null)
-				lastChild = null;
-		} else {
-			Node currentChild = firstChild;
-			while (currentChild.nextSibling != child)
-				currentChild = currentChild.nextSibling;
-			if (currentChild.nextSibling.nextSibling == null)
-				lastChild = currentChild;
-			currentChild.nextSibling = currentChild.nextSibling.nextSibling;
-		}
+		if (child.previousSibling != null)
+			child.previousSibling.nextSibling = child.nextSibling;
+		else
+			firstChild = child.nextSibling;
+		if (child.nextSibling != null)
+			child.nextSibling.previousSibling = child.previousSibling;
+		else
+			lastChild = child.previousSibling;
+		child.nextSibling = null;
+		child.previousSibling = null;
 	}
 	
 	public String toString() {
