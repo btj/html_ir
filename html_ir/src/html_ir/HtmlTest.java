@@ -19,13 +19,15 @@ class HtmlTest {
 		title.addChild(titleText);
 		Node script = new Node("script", null);
 		head.addChild(script);
-		head.removeChild(script);
+		//head.removeChild(script);
+		script.remove();
 		head.addChild(script);
 		Node scriptText = new Node(null, "alert('Hello world!')");
 		script.addChild(scriptText);
 		Node nonsense = new Node("nonsense", null);
 		head.addChild(nonsense);
-		head.removeChild(nonsense);
+		//head.removeChild(nonsense);
+		nonsense.remove();
 		
 		assertEquals(
 				"<html>" + 

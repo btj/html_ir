@@ -10,6 +10,7 @@ public class Node {
 	
 	private String tag;
 	private String text;
+	private Node parent;
 	private Node firstChild;
 	private Node lastChild;
 	private Node nextSibling;
@@ -36,6 +37,7 @@ public class Node {
 			firstChild = child;
 			lastChild = child;
 		}
+		child.parent = this;
 	}
 	
 	public void removeChild(Node child) {
@@ -49,6 +51,12 @@ public class Node {
 			lastChild = child.previousSibling;
 		child.nextSibling = null;
 		child.previousSibling = null;
+		child.parent = null;
+	}
+	
+	public void remove() {
+		if (parent != null)
+			parent.removeChild(this);
 	}
 	
 	public String toString() {
