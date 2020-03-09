@@ -10,6 +10,7 @@ import java.util.Optional;
 
 import logicalcollections.LogicalMap;
 import logicalcollections.LogicalList;
+import logicalcollections.LogicalSet;
 
 /**
  * Each instance of this class represents an element node or a text node in an HTML document.
@@ -18,8 +19,24 @@ import logicalcollections.LogicalList;
  */
 public class Node {
 
-	public Map<String, Object> getState() { return state(); }
+	/**
+	 * Returns the state of this node as a map that maps property names to property
+	 * values.
+	 * 
+	 * @post | result != null
+	 * @post | result.equals(Map.of(
+	 *       |     "text", Optional.ofNullable(getText()),
+	 *       |     "tag", Optional.ofNullable(getTag()),
+	 *       |     "parent", Optional.ofNullable(getParent()),
+	 *       |     "children", getChildren()))
+	 */
+	public Map<String, Object> getState() {
+		return state();
+	}
 	
+	/**
+	 * @pre | children != null
+	 */
 	private Map<String, Object> state() {
 		return Map.of(
 				"text", Optional.ofNullable(text),
@@ -47,6 +64,9 @@ public class Node {
 	 *    |         // Each peer node's children are not null and are in its peer group
 	 *    |         node.getChildren().stream().allMatch(child -> child != null && map.containsKey(child)) &&
 	 *    |
+	 *    |         // No peer node's list of children contains the same node more than once 
+	 *    |         LogicalList.distinct(node.getChildren()) &&
+	 *    |
 	 *    |         // Each peer node's parent, if any, is in its peer group
 	 *    |         (node.getParent() == null || map.containsKey(node.getParent())) &&
 	 *    |
@@ -60,7 +80,14 @@ public class Node {
 	 *    |         node.getChildren().stream().allMatch(child -> child.getParent() == node) &&
 	 *    |
 	 *    |         // Each peer node N's parent, if any, has N among its children 
-	 *    |         (node.getParent() == null || node.getParent().getChildren().contains(node))
+	 *    |         (node.getParent() == null || node.getParent().getChildren().contains(node)) &&
+	 *    |
+	 *    |         // No node has itself among its ancestors
+	 *    |         !LogicalSet.<Node>matching(ancestors ->
+	 *    |             (node.getParent() == null || ancestors.contains(node.getParent())) &&
+	 *    |             ancestors.allMatch(ancestor ->
+	 *    |                 ancestor.getParent() == null || ancestors.contains(ancestor.getParent()))
+	 *    |         ).contains(node) 
 	 *    |     ))
 	 *    | )
 	 */
@@ -75,12 +102,18 @@ public class Node {
 				(node.text == null) != (node.tag == null) &&
 				node.children != null &&
 				node.children.stream().allMatch(child -> child != null && map.containsKey(child)) &&
+				LogicalList.distinct(node.children) &&
 				(node.parent == null || map.containsKey(node.parent)) &&
 				map.containsEntry(node, node.state())
 			) &&
 			map.keySet().allMatch(node ->
 				node.children.stream().allMatch(child -> child.parent == node) &&
-				(node.parent == null || node.parent.children.contains(node))
+				(node.parent == null || node.parent.children.contains(node)) &&
+				!LogicalSet.<Node>matching(ancestors ->                                              
+				    (node.parent == null || ancestors.contains(node.parent)) &&            
+				    ancestors.allMatch(ancestor ->                                                   
+				        ancestor.parent == null || ancestors.contains(ancestor.parent))    
+				).contains(node)                                                                     
 			)
 		);
 	}
