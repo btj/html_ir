@@ -25,22 +25,18 @@ public class Node {
 	 * 
 	 * @post | result != null
 	 * @post | result.equals(Map.of(
-	 *       |     "text", Optional.ofNullable(getText()),
-	 *       |     "tag", Optional.ofNullable(getTag()),
 	 *       |     "parent", Optional.ofNullable(getParent()),
 	 *       |     "children", getChildren()))
 	 */
 	public Map<String, Object> getState() {
-		return state();
+		return getStatePrivate();
 	}
 	
 	/**
 	 * @pre | children != null
 	 */
-	private Map<String, Object> state() {
+	private Map<String, Object> getStatePrivate() {
 		return Map.of(
-				"text", Optional.ofNullable(text),
-				"tag", Optional.ofNullable(tag),
 				"parent", Optional.ofNullable(parent),
 				"children", List.copyOf(children));
 	}
@@ -57,9 +53,6 @@ public class Node {
 	 *    |     map.containsKey(this) &&
 	 *    |
 	 *    |     map.keySet().allMatch(node ->
-	 *    |
-	 *    |         // Each peer node is either a text node or an element node with a tag
-	 *    |         (node.getText() == null) != (node.getTag() == null) &&
 	 *    |
 	 *    |         // Each peer node's children are not null and are in its peer group
 	 *    |         node.getChildren().stream().allMatch(child -> child != null && map.containsKey(child)) &&
@@ -92,19 +85,18 @@ public class Node {
 	 *    | )
 	 */
 	public Map<Node, Map<String, Object>> getPeerGroupState() {
-		return peerGroupState();
+		return getPeerGroupStatePrivate();
 	}
 	
-	private Map<Node, Map<String, Object>> peerGroupState() {
+	private Map<Node, Map<String, Object>> getPeerGroupStatePrivate() {
 		return LogicalMap.matching(map ->
 			map.containsKey(this) &&
 			map.keySet().allMatch(node ->
-				(node.text == null) != (node.tag == null) &&
 				node.children != null &&
 				node.children.stream().allMatch(child -> child != null && map.containsKey(child)) &&
 				LogicalList.distinct(node.children) &&
 				(node.parent == null || map.containsKey(node.parent)) &&
-				map.containsEntry(node, node.state())
+				map.containsEntry(node, node.getStatePrivate())
 			) &&
 			map.keySet().allMatch(node ->
 				node.children.stream().allMatch(child -> child.parent == node) &&
@@ -119,11 +111,7 @@ public class Node {
 	}
 	
 	/**
-	 * @invar | peerGroupState() != null
-	 */
-	private String tag;
-	private String text;
-	/**
+	 * @invar | getPeerGroupStatePrivate() != null
 	 * @peerObject
 	 */
 	private Node parent;
@@ -132,9 +120,6 @@ public class Node {
 	 * @peerObjects
 	 */
 	private ArrayList<Node> children;
-	
-	public String getTag() { return tag; }
-	public String getText() { return text; }
 	
 	public Node getParent() { return parent; }
 	
@@ -149,20 +134,12 @@ public class Node {
 	 * Initializes this HTML document node either as an element node with a
 	 * given tag, or as a text node with a given text content.
 	 * 
-	 * @pre Either the given tag or the given text is null, but not both.
-	 *    | (tag == null) != (text == null)
-	 * @post This node's tag equals the given tag.
-	 *    | getTag() == tag
-	 * @post This node's text equals the given text.
-	 *    | getText() == text
 	 * @post This node's list of children is empty.
 	 *    | getChildren().isEmpty()
 	 * @post This node is a root node.
 	 *    | getParent() == null
 	 */
-	public Node(String tag, String text) {
-		this.tag = tag;
-		this.text = text;
+	public Node() {
 		this.children = new ArrayList<Node>();
 	}
 	
@@ -175,8 +152,8 @@ public class Node {
 	 *    | child.getParent() == null
 	 * @pre The given node is not an ancestor of this node.
 	 *      Equivalently: the given node is not in this node's peer group.
-	 *    | !getPeerGroupState().containsKey(child)
-	 * @mutates this, child
+	 *    | !this.getPeerGroupState().containsKey(child)
+	 * @mutates | this, child
 	 * @post This node's list of children equals its old list of children with the given node added to the end.
 	 *    | getChildren().equals(LogicalList.plus(old(getChildren()), child))
 	 * @post The given node's parent equals this node.
@@ -257,16 +234,22 @@ public class Node {
 	 * @post | result != null
 	 */
 	public String toString() {
-		if (text != null)
-			return text;
-		String result = "<" + tag + ">";
-		for (Node child : children) {
-		//for (int i = 0; i < children.size(); i++) {
-			//Node child = children.get(i);
-			result += child.toString();
+		if (this instanceof TextNode) {
+			return ((TextNode)this).getText();
+		} else {
+			String result = "<" + ((ElementNode)this).getTag()+ ">";
+			for (Node child : children) {
+			//for (int i = 0; i < children.size(); i++) {
+				//Node child = children.get(i);
+				result += child.toString();
+			}
+			result += "</" + ((ElementNode)this).getTag() + ">";
+			return result;
 		}
-		result += "</" + tag + ">";
-		return result;
+	}
+	
+	public int getTotalNbCharacters() {
+		throw new AssertionError("Not yet implemented");
 	}
 
 }

@@ -10,21 +10,21 @@ class HtmlTest {
 
 	@Test
 	void test() {
-		Node html = new Node("html", null);
-		Node head = new Node("head", null);
+		Node html = new ElementNode("html");
+		Node head = new ElementNode("head");
 		html.addChild(head);
-		Node title = new Node("title", null);
+		Node title = new ElementNode("title");
 		head.addChild(title);
-		Node titleText = new Node(null, "JLearner");
+		Node titleText = new TextNode("JLearner");
 		title.addChild(titleText);
-		Node script = new Node("script", null);
+		Node script = new ElementNode("script");
 		head.addChild(script);
 		//head.removeChild(script);
 		script.remove();
 		head.addChild(script);
-		Node scriptText = new Node(null, "alert('Hello world!')");
+		Node scriptText = new TextNode("alert('Hello world!')");
 		script.addChild(scriptText);
-		Node nonsense = new Node("nonsense", null);
+		Node nonsense = new ElementNode("nonsense");
 		head.addChild(nonsense);
 		//head.removeChild(nonsense);
 		nonsense.remove();
