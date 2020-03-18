@@ -83,6 +83,9 @@ public class Node {
 	 *    |         ).contains(node) 
 	 *    |     ))
 	 *    | )
+	 * 
+     * @peerObjects
+     *    | result.keySet()
 	 */
 	public Map<Node, Map<String, Object>> getPeerGroupState() {
 		return getPeerGroupStatePrivate();
