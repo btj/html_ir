@@ -116,7 +116,7 @@ public abstract class Node {
 	 * 
 	 * @pre {@code child} is not null.
 	 *    | child != null
-	 * @pre The given node is a root node.
+	 * @pre The given node is a child of this node.
 	 *    | getChildren().contains(child)
 	 * @mutates_properties | getChildren(), child.getParent()
 	 * @post This node's list of children equals its old list of children with the given node removed.
@@ -134,7 +134,7 @@ public abstract class Node {
 	 * 
 	 * @pre This node is not a root node.
 	 *    | getParent() != null
-	 * @mutates_properties getParent().getChildren(), getParent()
+	 * @mutates_properties | getParent().getChildren(), getParent()
 	 * @post This node's list of children equals its old list of children with the given node removed.
 	 *    | old(getParent()).getChildren().equals(LogicalList.minus(old(getParent().getChildren()), this))
 	 * @post The given node is a root node.
