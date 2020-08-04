@@ -1,4 +1,4 @@
-package html_ir;
+package html;
 
 import java.util.ArrayList;
 import java.util.List;

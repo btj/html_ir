@@ -1,4 +1,4 @@
-package html_ir;
+package html;
 
 import static org.junit.jupiter.api.Assertions.*;
 

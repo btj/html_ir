@@ -1,4 +1,4 @@
-package html_ir;
+package html;
 
 public class TextNode extends Node {
 	

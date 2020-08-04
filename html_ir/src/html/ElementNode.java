@@ -1,4 +1,4 @@
-package html_ir;
+package html;
 
 public class ElementNode extends Node {
 	
