@@ -2,8 +2,6 @@ package html;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.net.http.HttpResponse.BodyHandler;
-
 import org.junit.jupiter.api.Test;
 
 class HtmlTest {
